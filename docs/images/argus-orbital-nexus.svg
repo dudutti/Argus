@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <!-- Core Glow Filter -->
+    <filter id="argus-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <filter id="vermilion-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Radar Sweep Gradient -->
+    <linearGradient id="argus-sweep-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A359" stop-opacity="0.35" />
+      <stop offset="60%" stop-color="#D4A359" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#D4A359" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Brass Core Gradient -->
+    <radialGradient id="argus-core-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF1D0" />
+      <stop offset="40%" stop-color="#E04F33" />
+      <stop offset="85%" stop-color="#D4A359" />
+      <stop offset="100%" stop-color="#18181B" stop-opacity="0.8" />
+    </radialGradient>
+  </defs>
+
+  <style>
+    @keyframes argus-cw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes argus-ccw {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes argus-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.22); opacity: 0.65; }
+    }
+    @keyframes argus-blip {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .origin-c {
+      transform-origin: 50px 50px;
+    }
+    .anim-radar-sweep {
+      animation: argus-cw 3.5s linear infinite;
+    }
+    .anim-orbit-inner {
+      animation: argus-cw 9s linear infinite;
+    }
+    .anim-orbit-mid {
+      animation: argus-ccw 15s linear infinite;
+    }
+    .anim-orbit-outer {
+      animation: argus-cw 25s linear infinite;
+    }
+    .anim-core-pulse {
+      animation: argus-pulse 2s ease-in-out infinite;
+    }
+    .anim-satellite-blip {
+      animation: argus-blip 1.8s ease-in-out infinite alternate;
+    }
+  </style>
+
+  <!-- Background Base Aperture (Optique Sombre) -->
+  <circle cx="50" cy="50" r="48" fill="#09090B" stroke="#27272A" stroke-width="1" />
+  
+  <!-- Outer Fixed Cardinal Tick Brackets -->
+  <g stroke="#7C93A8" stroke-width="1" opacity="0.6">
+    <!-- North -->
+    <line x1="50" y1="2" x2="50" y2="7" stroke="#D4A359" stroke-width="1.5" />
+    <!-- South -->
+    <line x1="50" y1="93" x2="50" y2="98" />
+    <!-- West -->
+    <line x1="2" y1="50" x2="7" y2="50" />
+    <!-- East -->
+    <line x1="93" y1="50" x2="98" y2="50" />
+    <!-- Diagonals ticks -->
+    <circle cx="16" cy="16" r="1" fill="#7C93A8" />
+    <circle cx="84" cy="16" r="1" fill="#7C93A8" />
+    <circle cx="16" cy="84" r="1" fill="#7C93A8" />
+    <circle cx="84" cy="84" r="1" fill="#7C93A8" />
+  </g>
+
+  <!-- Dynamic Sweeping Radar Beam (Sector) -->
+  <g class="origin-c anim-radar-sweep">
+    <path d="M 50 50 L 50 8 A 42 42 0 0 1 80 20 Z" fill="url(#argus-sweep-grad)" />
+    <line x1="50" y1="50" x2="50" y2="8" stroke="#D4A359" stroke-width="1" stroke-linecap="round" opacity="0.85" filter="url(#argus-glow)" />
+  </g>
+
+  <!-- Ring 3: Outer Telemetry Radar Ring (Clockwise, 25s) -->
+  <g class="origin-c anim-orbit-outer">
+    <circle cx="50" cy="50" r="41.5" fill="none" stroke="#D4A359" stroke-width="1.2" stroke-dasharray="2 7 14 7" opacity="0.75" />
+    <circle cx="50" cy="50" r="44.5" fill="none" stroke="#7C93A8" stroke-width="0.8" stroke-dasharray="1 5" opacity="0.45" />
+    
+    <!-- Outer Stratum Relay Nodes -->
+    <g transform="translate(50, 50)">
+      <circle cx="0" cy="-41.5" r="2" fill="#D4A359" filter="url(#argus-glow)" />
+      <polygon points="41.5,-1 44,0 41.5,1 40,0" fill="#E04F33" />
+      <circle cx="-41.5" cy="0" r="1.5" fill="#7C93A8" />
+    </g>
+  </g>
+
+  <!-- Ring 2: Mid Cross-Chain Stratum Ring (Counter-Clockwise, 15s) -->
+  <g class="origin-c anim-orbit-mid">
+    <circle cx="50" cy="50" r="28" fill="none" stroke="#7C93A8" stroke-width="1.2" stroke-dasharray="16 6 3 6" opacity="0.85" />
+    
+    <!-- Orbiting Chain Satellites -->
+    <!-- Satellite 1: Solana (Sage green) -->
+    <g transform="rotate(30 50 50)">
+      <circle cx="50" cy="22" r="2.2" fill="#4E9F76" filter="url(#argus-glow)" />
+      <circle cx="50" cy="22" r="4" fill="none" stroke="#4E9F76" stroke-width="0.6" opacity="0.5" />
+    </g>
+    <!-- Satellite 2: Ethereum (Warm Brass) -->
+    <g transform="rotate(150 50 50)">
+      <circle cx="50" cy="22" r="2.5" fill="#D4A359" filter="url(#argus-glow)" />
+    </g>
+    <!-- Satellite 3: Arbitrum (Tactical Cyan) -->
+    <g transform="rotate(270 50 50)">
+      <circle cx="50" cy="22" r="2" fill="#38BDF8" filter="url(#argus-glow)" />
+      <line x1="50" y1="19" x2="50" y2="25" stroke="#38BDF8" stroke-width="0.7" opacity="0.8" />
+    </g>
+  </g>
+
+  <!-- Ring 1: Inner Orbit Ring (Clockwise, 9s) -->
+  <g class="origin-c anim-orbit-inner">
+    <circle cx="50" cy="50" r="16" fill="none" stroke="#D4A359" stroke-width="1" stroke-dasharray="4 4" opacity="0.85" />
+    
+    <!-- Inner High-Velocity Forensic Data Pips -->
+    <circle cx="50" cy="34" r="1.5" fill="#E04F33" filter="url(#vermilion-glow)" />
+    <circle cx="50" cy="66" r="1.5" fill="#FFF1D0" />
+  </g>
+
+  <!-- Fixed HUD Crosshairs (Inner Reticle Ticks) -->
+  <g stroke="#D4A359" stroke-width="1" opacity="0.85">
+    <line x1="50" y1="39" x2="50" y2="44" />
+    <line x1="50" y1="56" x2="50" y2="61" />
+    <line x1="39" y1="50" x2="44" y2="50" />
+    <line x1="56" y1="50" x2="61" y2="50" />
+  </g>
+
+  <!-- Central Optical Singularity / Pulse Reticle -->
+  <g class="origin-c anim-core-pulse">
+    <!-- Outer Core Halo -->
+    <circle cx="50" cy="50" r="8" fill="none" stroke="#E04F33" stroke-width="1" opacity="0.6" />
+    <!-- Glowing Iris Core -->
+    <circle cx="50" cy="50" r="4.8" fill="url(#argus-core-grad)" filter="url(#vermilion-glow)" />
+    <!-- Focal Point Pip -->
+    <circle cx="50" cy="50" r="1.5" fill="#FFFFFF" />
+  </g>
+</svg>
+

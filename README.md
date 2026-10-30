@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="docs/images/argus_logo_orbital_nexus.jpg" alt="ARGUS Orbital Nexus Banner" width="820" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+<a href="#-argus--advanced-forensic-spatial-workstation">
+  <img src="docs/images/argus-orbital-nexus.svg" alt="ARGUS Orbital Nexus Animated Radar" width="210" />
+</a>
 
 # 👁️ ARGUS // Advanced Forensic Spatial Workstation
 ### *3D Multi-Chain Spatial Forensic & Cybercrime Intelligence Tracer*
@@ -14,11 +16,15 @@
 
 <br/>
 
+<p align="center">
+  <img src="docs/images/argus_logo_orbital_nexus.jpg" alt="ARGUS Orbital Nexus Banner" width="820" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+</p>
+
 **ARGUS** est une station de travail forensic Web3 de nouvelle génération qui transcende les explorateurs 2D traditionnels pour projeter les flux criminels multi-chaînes dans un **espace volumétrique 3D stratifié**.
 
 De la compromission de validateurs aux attaques de flashloan et aux réseaux d'épluchage (*peel chains*) de **Lazarus Group**, ARGUS retrace les trajectoires de fonds vérifiées à 100 % sur **Solana**, **Arbitrum One**, **Ethereum L1** et **Bitcoin**.
 
-[Explorer la Démo](#-démarrage-rapide) • [Cas d'Étude Réels](#-les-5-cas-détude-historiques) • [Architecture 3D](#-stratification-spatiale-multi-chaînes) • [Documentation](#-spécifications-techniques)
+[Démarrage Rapide](#-démarrage-rapide) • [Cas d'Étude Réels](#-les-5-cas-détude-historiques) • [Architecture 3D](#-stratification-spatiale-multi-chaînes) • [Spécifications Techniques](#-stack-technique)
 
 </div>
 
@@ -97,7 +103,7 @@ ARGUS embarque 5 archives forensiques complètes, basées sur des données on-ch
 
 ### 3. Euler Finance Flashloan Logic Vulnerability — $197 Millions (Mars 2023)
 * **Vecteur** : Faille de conception dans la fonction `donateToReserves()` du contrat d'eTokens sans vérification de ratio de santé.
-* **Mécanisme** : Flashloan Balancer ($30M DAI), démultiplication du levier via création notionnelle de tokens depuis l'adresse de frappe `EVM Zero (0x00...00)` totalisant plus de **$5.67 Milliards**, auto-liquidation et extraction.
+* **Mécanisme** : Flashloan Balancer ($30M DAI), démultiplication du levier via création notionnelle de tokens depuis l'adresse de frappe `EVM Zero / Mint Engine (0x00...00)` totalisant plus de **$5.67 Milliards**, auto-liquidation et extraction.
 * **Dénouement & Décodage On-Chain** : Au **bloc #16885400**, le pirate envoie son message de capitulation encodé en UTF-8 (*« we want to make all full easy for all those affected... »*), menant à la **restitution intégrale de 100 % des fonds** le 3 avril 2023.
 
 ### 4. FTX Chapter 11 Accounts Drainer — $477 Millions (Novembre 2022)
@@ -122,7 +128,7 @@ ARGUS embarque 5 archives forensiques complètes, basées sur des données on-ch
 │   • Cinematic 3D Scroll Hero  │   • Multi-Chain 3D Canvas   │
 │   • Interactive Geometry Deck │   • Classic Ledger Table    │
 │   • Interactive Taint Lab     │   • Timeline Scrubber       │
-│   • 4 Demo Video Showcases    │   • Hex Message Inspector   │
+│   • 60 FPS Procedural Cinema  │   • Hex Message Inspector   │
 ├───────────────────────────────┴─────────────────────────────┤
 │                    3D VOLUMETRIC ENGINE                     │
 │   • Three.js r170 (Custom Shader Materials, Bezier Links)   │
@@ -159,7 +165,7 @@ npm run dev
 ```
 
 Ouvrez votre navigateur sur `http://localhost:5173/` :
-- **`/`** : Landing Page Scrollytelling interactive avec démonstrateurs 3D.
+- **`/`** : Landing Page Scrollytelling interactive avec simulateurs procéduraux 60 FPS.
 - **`/workstation`** : Station de travail forensique complète avec sélection des 5 cas d'étude.
 
 ### Construction pour la Production
@@ -176,7 +182,7 @@ npm run preview
 ```
 Argus/
 ├── docs/                         # Documentation visuelle et kits médias
-│   └── images/                   # Logos haute résolution et captures d'écran
+│   └── images/                   # Logos haute résolution (SVG animé, JPG) et captures d'écran
 ├── public/
 │   ├── archives/                 # Jeux de données JSON réels vérifiés on-chain
 │   │   ├── bybit-safe-exploit-2025.json
@@ -184,7 +190,8 @@ Argus/
 │   │   ├── ftx-accounts-drainer-2022.json
 │   │   ├── ronin-bridge-exploit-2022.json
 │   │   └── wormhole-bridge-exploit-2022.json
-│   └── media/                    # Vidéos de démonstration (Masters 16:9 & Shorts 9:16)
+│   ├── argus-orbital-nexus.svg   # Logo vectoriel animé en temps réel
+│   └── media/                    # Captures d'écran et graphiques haute résolution
 ├── scripts/                      # Scripts d'enrichissement et d'ingestion on-chain
 │   └── enrich_crosschain_archives.py
 ├── src/
@@ -209,9 +216,9 @@ Argus/
 │   │   └── forensics.ts
 │   └── utils/
 │       └── hexUtils.ts           # Décodeur UTF-8 / Hexadécimal on-chain
-├── POSTS_RESEAUX_DEMO_VIDEOS.md  # Scripts de publication réseaux sociaux & voix-off
 ├── tailwind.config.js
 ├── vite.config.ts
+├── LICENSE
 └── package.json
 ```
 
@@ -236,4 +243,3 @@ Toutes les adresses de portefeuilles, transactions, hashs et contrats inclus dan
 <div align="center">
   <sub>Développé avec passion pour l'investigation Web3 et la transparence décentralisée.</sub>
 </div>
-

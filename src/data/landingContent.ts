@@ -423,7 +423,6 @@ export const LANDING_CONTENT: Record<Language, LandingLocaleContent> = {
           description:
             'Démonstration du slider interactif 2D vs 3D : finis les tableaux de hash plats Etherscan, les flux s’élèvent en 3D avec séparation spatiale des rôles et des réseaux.',
           tags: ['WebGL2 60 FPS', 'Z-Planes', 'Cross-Chain', 'Slider 3D'],
-          videoSrc: '/media/demo_1_master.mp4',
           simulationMode: 'z_strata_burst',
           linkedCaseId: 'bybit-safe-exploit-2025',
         },
@@ -436,7 +435,6 @@ export const LANDING_CONTENT: Record<Language, LandingLocaleContent> = {
           description:
             'Reconstitution minute par minute du plus grand braquage crypto de l’histoire : compromission Safe, 420 transactions réelles vérifiées et 30 dépôts parallèles vers Tornado Cash.',
           tags: ['420 TXs Réelles', 'Lazarus Group', 'Bybit 2025', 'Scrubber'],
-          videoSrc: '/media/demo_2_master.mp4',
           simulationMode: 'bybit_420_ledger',
           linkedCaseId: 'bybit-safe-exploit-2025',
         },
@@ -449,7 +447,6 @@ export const LANDING_CONTENT: Record<Language, LandingLocaleContent> = {
           description:
             'Examen du hack Ronin Bridge : corrélation temporelle et de gas sur les retraits mixeur, vue Taint Heatmap et expansion Hop +1 avec arrêt strict garanti sur RPC.',
           tags: ['Taint Heatmap', 'Tornado Cash', '+1 Hop Direct', 'Zéro Fake'],
-          videoSrc: '/media/demo_3_master.mp4',
           simulationMode: 'taint_entropy_wave',
           linkedCaseId: 'ronin-bridge-exploit-2022',
         },
@@ -462,7 +459,6 @@ export const LANDING_CONTENT: Record<Language, LandingLocaleContent> = {
           description:
             'Examen direct du braquage Euler Finance ($197M) : extraction des payloads hexadécimaux et lecture en clair des négociations on-chain transmises au contrat.',
           tags: ['Split 50/50', 'CallData UTF-8', 'Euler Finance', 'Preuve RPC'],
-          videoSrc: '/media/demo_4_master.mp4',
           simulationMode: 'z_strata_burst',
           linkedCaseId: 'euler-flashloan-exploit-2023',
         },
@@ -991,7 +987,6 @@ interface SpatialDataset {
           description:
             'Interactive 2D vs 3D slider demo: no more flat Etherscan hash tables. On-chain flows elevate into 3D with spatial separation of networks and entity roles.',
           tags: ['WebGL2 60 FPS', 'Z-Planes', 'Cross-Chain', '3D Slider'],
-          videoSrc: '/media/demo_1_master.mp4',
           simulationMode: 'z_strata_burst',
           linkedCaseId: 'bybit-safe-exploit-2025',
         },
@@ -1004,7 +999,6 @@ interface SpatialDataset {
           description:
             'Minute-by-minute reconstruction of history’s largest crypto heist: Safe UI spoofing, 420 verified real transactions, and 30 parallel deposits into Tornado Cash.',
           tags: ['420 Real TXs', 'Lazarus Group', 'Bybit 2025', 'Scrubber'],
-          videoSrc: '/media/demo_2_master.mp4',
           simulationMode: 'bybit_420_ledger',
           linkedCaseId: 'bybit-safe-exploit-2025',
         },
@@ -1017,7 +1011,6 @@ interface SpatialDataset {
           description:
             'Ronin Bridge exploit analysis: timing and gas entropy correlation on mixer withdrawals, Taint Heatmap view, and direct +1 Hop live query with strict RPC fallback limits.',
           tags: ['Taint Heatmap', 'Tornado Cash', '+1 Hop Live', 'Zero Fake'],
-          videoSrc: '/media/demo_3_master.mp4',
           simulationMode: 'taint_entropy_wave',
           linkedCaseId: 'ronin-bridge-exploit-2022',
         },
@@ -1030,7 +1023,6 @@ interface SpatialDataset {
           description:
             'Direct inspection of the Euler Finance heist ($197M): raw hexadecimal payload extraction and plaintext decoding of on-chain hacker negotiation messages on public RPC.',
           tags: ['Split 50/50', 'CallData UTF-8', 'Euler Finance', 'RPC Proof'],
-          videoSrc: '/media/demo_4_master.mp4',
           simulationMode: 'z_strata_burst',
           linkedCaseId: 'euler-flashloan-exploit-2023',
         },
