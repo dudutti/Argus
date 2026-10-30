@@ -1,0 +1,26 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Header,Arial,36,&H0059A3D4,&H00000000,&H000B0909,&HCC09090B,1,0,0,0,100,100,1,0,3,10,0,8,40,40,450,1
+Style: Subheader,Arial,24,&H00FFFFFF,&H00000000,&H000B0909,&HCC09090B,1,0,0,0,100,100,0,0,3,8,0,8,40,40,530,1
+Style: Speech,Arial,34,&H00FFFFFF,&H00000000,&H000B0909,&H80000000,1,0,0,0,100,100,0,0,1,4,2,2,40,40,400,1
+Style: Footer,Arial,22,&H00A8937C,&H00000000,&H000B0909,&HCC09090B,1,0,0,0,100,100,1,0,3,6,0,2,40,40,250,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:33.96,Header,,0,0,0,,ARGUS  //  LE CHOC VISUEL
+Dialogue: 0,0:00:00.00,0:00:33.96,Subheader,,0,0,0,,ARRETEZ LA 2D SUR ETHERSCAN
+Dialogue: 0,0:00:00.00,0:00:33.96,Footer,,0,0,0,,ARGUS FORENSIC  //  TESTER SUR GITHUB
+Dialogue: 1,0:00:00.00,0:00:04.20,Speech,,0,0,0,,Voici comment la plupart des gens analysent
+Dialogue: 1,0:00:04.20,0:00:08.80,Speech,,0,0,0,,un braquage crypto a 1 milliard de dollars sur Etherscan.
+Dialogue: 1,0:00:08.80,0:00:12.50,Speech,,0,0,0,,Bonne chance pour reperer ou fuit l'argent.
+Dialogue: 1,0:00:12.50,0:00:16.50,Speech,,0,0,0,,Maintenant, regardez ce qui se passe sur ARGUS :
+Dialogue: 1,0:00:16.50,0:00:20.80,Speech,,0,0,0,,en glissant le curseur, les flux s'elevent en 3 dimensions.
+Dialogue: 1,0:00:20.80,0:00:25.50,Speech,,0,0,0,,Chaque blockchain a son etage, chaque role sa geometrie :
+Dialogue: 1,0:00:25.50,0:00:29.50,Speech,,0,0,0,,Icosaedre rouge pour le hacker, sphere noire pour Tornado Cash.
+Dialogue: 1,0:00:29.50,0:00:33.90,Speech,,0,0,0,,Plus besoin de dechiffrer 0x : vous comprenez la fuite en 2 secondes.

@@ -1,0 +1,20 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Speech,Arial,28,&H00FFFFFF,&H00000000,&H000B0909,&H80000000,1,0,0,0,100,100,0,0,1,3.5,1.5,2,40,40,45,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:04.20,Speech,,0,0,0,,Voici comment la plupart des gens analysent
+Dialogue: 0,0:00:04.20,0:00:08.80,Speech,,0,0,0,,un braquage crypto a 1 milliard de dollars sur Etherscan.
+Dialogue: 0,0:00:08.80,0:00:12.50,Speech,,0,0,0,,Bonne chance pour reperer ou fuit l'argent.
+Dialogue: 0,0:00:12.50,0:00:16.50,Speech,,0,0,0,,Maintenant, regardez ce qui se passe sur ARGUS :
+Dialogue: 0,0:00:16.50,0:00:20.80,Speech,,0,0,0,,en glissant le curseur, les flux s'elevent en 3 dimensions.
+Dialogue: 0,0:00:20.80,0:00:25.50,Speech,,0,0,0,,Chaque blockchain a son etage, chaque role sa geometrie :
+Dialogue: 0,0:00:25.50,0:00:29.50,Speech,,0,0,0,,Icosaedre rouge pour le hacker, sphere noire pour Tornado Cash.
+Dialogue: 0,0:00:29.50,0:00:33.90,Speech,,0,0,0,,Plus besoin de dechiffrer 0x : vous comprenez la fuite en 2 secondes.

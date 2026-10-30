@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #08090C;
+    color: #E6E6EA;
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+  }
+}
+
+/* Custom precision dark-room scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08090C;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 163, 89, 0.22);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 163, 89, 0.5);
+}
+
+/* Custom tactical range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.1);
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -5px;
+  background-color: #D4A359;
+  height: 14px;
+  width: 10px;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(212, 163, 89, 0.5);
+  border: 1px solid #08090C;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background-color: #EADBC2;
+}
