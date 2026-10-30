@@ -31,6 +31,9 @@ Thumbs.db
 # Scratch folder
 scratch/
 
+# Local draft posts (do not push to GitHub)
+POSTS_*.md
+
 # Large raw intermediate video capture dumps (intermediate Playwright recordings)
 public/media/raw_captures/
 public/media/raw_audio/
