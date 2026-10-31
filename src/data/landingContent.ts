@@ -465,6 +465,19 @@ export const LANDING_CONTENT: Record<Language, LandingLocaleContent> = {
       ],
       archives: [
         {
+          caseId: 'binance-multichain-heist-2026',
+          year: 'OCT 2026 (LIVE)',
+          amount: '$6.4B',
+          title: 'Binance Multi-Chain Blitzkrieg',
+          attacker: 'Lazarus Group (UNC4899)',
+          summary: 'Détournement EIP-7702 de Binance 14 sans changer d\'adresse EOA. 6,4 Md$ siphonnés sur 8 blockchains. $2.9B gelés en 54 min vs $3.5B activement blanchis.',
+          tacticalNodes: 18,
+          tacticalTxs: 19,
+          fullNodes: 18,
+          fullTxs: 19,
+          chains: ['SOL', 'BASE', 'OP', 'ARB', 'ETH', 'BSC', 'TRX', 'BTC'],
+        },
+        {
           caseId: 'bybit-safe-exploit-2025',
           year: 'FÉV 2025',
           amount: '$1.46B',
@@ -1028,6 +1041,19 @@ interface SpatialDataset {
         },
       ],
       archives: [
+        {
+          caseId: 'binance-multichain-heist-2026',
+          year: 'OCT 2026 (LIVE)',
+          amount: '$6.4B',
+          title: 'Binance Multi-Chain Blitzkrieg',
+          attacker: 'Lazarus Group (UNC4899)',
+          summary: 'EIP-7702 EOA hijack of Binance 14 without address change. $6.4 Billion drained across 8 blockchains. $2.9B frozen in 54 minutes vs $3.5B actively laundered.',
+          tacticalNodes: 18,
+          tacticalTxs: 19,
+          fullNodes: 18,
+          fullTxs: 19,
+          chains: ['SOL', 'BASE', 'OP', 'ARB', 'ETH', 'BSC', 'TRX', 'BTC'],
+        },
         {
           caseId: 'bybit-safe-exploit-2025',
           year: 'FEB 2025',

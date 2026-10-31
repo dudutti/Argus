@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForensicStore } from '../store/useForensicStore';
 import { CHAIN_PLANES } from '../data/forensicCases';
 import { TRANSLATIONS } from '../i18n/translations';
+import { isNodeFrozenAtTime } from '../types/forensics';
 import { decodeHexToUtf8 } from '../utils/hexUtils';
 import {
   AlertOctagon,
@@ -88,6 +89,62 @@ export const RightInspectorPanel: React.FC = () => {
 
       {/* Scrollable Body */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Dynamic Frozen vs Pre-Freeze Alert Banner */}
+        {(() => {
+          const isFrozenNow = isNodeFrozenAtTime(selectedNode, state.currentTimestamp, state.links);
+          if (isFrozenNow) {
+            return (
+              <div className="p-3 rounded-lg bg-[#0284C7]/25 border border-[#38BDF8]/60 text-[11px] text-[#38BDF8] flex items-start gap-2.5 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                <span className="text-base">❄️</span>
+                <div className="space-y-0.5">
+                  <div className="font-bold uppercase tracking-wider text-[10px] text-[#38BDF8]">
+                    {state.language === 'fr' ? 'FONDS GELÉS / BLACKLIST' : 'FROZEN / BLACKLISTED ASSETS'}
+                  </div>
+                  <p className="text-[10px] text-sky-200/90 leading-relaxed">
+                    {selectedNode.freezeReason || (state.language === 'fr' ? 'Fonds immobilisés par décision de gouvernance ou smart contract blacklist.' : 'Assets immobilized by issuer or governance freeze.')}
+                  </p>
+                </div>
+              </div>
+            );
+          }
+          if (selectedNode.isFrozen) {
+            return (
+              <div className="p-3 rounded-lg bg-rose-950/40 border border-[#E04F33]/60 text-[11px] text-rose-300 flex items-start gap-2.5 shadow-[0_0_15px_rgba(224,79,51,0.2)]">
+                <span className="text-base">🚨</span>
+                <div className="space-y-0.5">
+                  <div className="font-bold uppercase tracking-wider text-[10px] text-[#E04F33] flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#E04F33] animate-ping" />
+                    <span>{state.language === 'fr' ? 'VAULT ACTIF // PRÉ-GEL (FONDS SIPHONNÉS)' : 'ACTIVE HOT VAULT // PRE-FREEZE'}</span>
+                  </div>
+                  <p className="text-[10px] text-rose-200/90 leading-relaxed">
+                    {state.language === 'fr'
+                      ? `Ce vault a reçu des fonds volés lors du siphon. Le gel interviendra sur la timeline lors de l'exécution de la blacklist on-chain (${selectedNode.freezeReason || 'Blacklist contractuelle'}).`
+                      : `Siphoned funds received into this vault. The freeze transaction will execute later on the timeline (${selectedNode.freezeReason || 'Issuer blacklist'}).`}
+                  </p>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()}
+
+        {/* EIP-7702 Trojan Warning */}
+        {selectedNode.eip7702DelegatedTo && (
+          <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-500/60 text-[11px] text-amber-300 flex items-start gap-2.5 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <div className="font-bold uppercase tracking-wider text-[10px] text-amber-400">
+                {state.language === 'fr' ? 'EOA DÉTOURNÉ VIA EIP-7702' : 'EIP-7702 HIJACKED EOA'}
+              </div>
+              <p className="text-[10px] text-amber-200/90 leading-relaxed">
+                {state.language === 'fr'
+                  ? `Bytecode délégué (0xef0100) vers le contrat sweeper : ${selectedNode.eip7702DelegatedTo}`
+                  : `Delegated bytecode (0xef0100) pointing to sweeper contract: ${selectedNode.eip7702DelegatedTo}`}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Forensic Data Provenance Banner (Real On-Chain vs Heuristic Model) */}
         {selectedNode.dataSource === 'live_onchain' || selectedNode.notes?.includes('[Live On-Chain') ? (
           <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-[11px] text-emerald-300 flex items-start gap-2.5 shadow-[0_0_15px_rgba(16,185,129,0.12)]">

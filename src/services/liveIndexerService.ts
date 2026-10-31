@@ -1,5 +1,6 @@
 import { AssetType, ChainId, EntityType, ForensicLink, ForensicNode } from '../types/forensics';
 import { CHAIN_PLANES } from '../data/forensicCases';
+import { checkEip7702Delegation } from './multichainCollectors';
 
 export interface BlockscoutTxItem {
   hash: string;
@@ -32,6 +33,25 @@ export interface BlockscoutTxItem {
   result?: string;
 }
 
+export interface BlockscoutInternalTxItem {
+  transaction_hash?: string;
+  block_number?: number;
+  timestamp?: string;
+  from?: {
+    hash: string;
+    is_contract?: boolean;
+    name?: string | null;
+  };
+  to?: {
+    hash: string;
+    is_contract?: boolean;
+    name?: string | null;
+  };
+  value?: string;
+  type?: string;
+  success?: boolean;
+}
+
 interface BlockscoutTokenTransferItem {
   transaction_hash?: string;
   block_number?: number;
@@ -62,18 +82,26 @@ interface BlockscoutTokenTransferItem {
 
 const VALID_ERC20_SYMBOLS = new Set([
   'WETH', 'STETH', 'WSTETH', 'METH', 'CMETH', 'RETH', 'CBETH',
-  'USDC', 'USDT', 'DAI', 'FRAX', 'LUSD',
+  'USDC', 'USDT', 'DAI', 'FRAX', 'LUSD', 'RLUSD', 'USD1', 'FDUSD',
   'WBTC', 'RENBTC', 'CBBTC', 'TBTC',
-  'PAXG', 'LINK', 'UNI', 'AAVE', 'LDO', 'MKR', 'CRV',
+  'PAXG', 'XAUT', 'WBETH', 'LINK', 'UNI', 'AAVE', 'LDO', 'MKR', 'CRV',
+  'ARB', 'OP', 'ENA', 'PEPE',
 ]);
 
 function mapSymbolToAsset(sym?: string): AssetType {
   const u = (sym || 'ETH').toUpperCase();
+  if (u.includes('WBETH')) return 'WBETH';
+  if (u.includes('XAUT')) return 'XAUT';
+  if (u.includes('RLUSD')) return 'RLUSD';
   if (u.includes('BTC')) return 'WBTC';
-  if (u.includes('USDT')) return 'USDT';
+  if (u.includes('USDT') || u.includes('USD1') || u.includes('FDUSD')) return 'USDT';
   if (u.includes('USDC')) return 'USDC';
   if (u.includes('DAI') || u === 'FRAX' || u === 'LUSD') return 'DAI';
   if (u === 'SOL') return 'SOL';
+  if (u === 'TRX') return 'TRX';
+  if (u === 'BNB') return 'BNB';
+  if (u === 'ARB') return 'ARB';
+  if (u === 'OP') return 'OP';
   return 'ETH';
 }
 
@@ -164,20 +192,23 @@ export async function fetchLiveOnChainTransactions(
   realLinks: ForensicLink[];
   isLive: boolean;
 }> {
-  const isEthFamily = chain === 'ETH' || chain === 'ARB';
-  if (!isEthFamily || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+  const isEosChain = chain === 'ETH' || chain === 'ARB' || chain === 'OP' || chain === 'BASE';
+  if (!isEosChain || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
     return { realNodes: [], realLinks: [], isLive: false };
   }
 
   const baseUrl =
     chain === 'ARB'
       ? 'https://arbitrum.blockscout.com/api/v2'
+      : chain === 'OP'
+      ? 'https://optimism.blockscout.com/api/v2'
+      : chain === 'BASE'
+      ? 'https://base.blockscout.com/api/v2'
       : 'https://eth.blockscout.com/api/v2';
 
   try {
-    // Query outgoing txs (?filter=from prevents incoming spam dusting from hiding real hacker/user outflows),
-    // general txs (for genuine inflows), and legitimate ERC-20 token transfers in parallel
-    const [outTxRes, allTxRes, tokRes] = await Promise.all([
+    // Query outgoing txs, incoming txs, token transfers, AND internal transactions in parallel
+    const [outTxRes, allTxRes, tokRes, internalTxRes] = await Promise.all([
       safeFetchBlockscout<{ items?: BlockscoutTxItem[] }>(
         `${baseUrl}/addresses/${address}/transactions?filter=from`
       ),
@@ -186,6 +217,9 @@ export async function fetchLiveOnChainTransactions(
       ),
       safeFetchBlockscout<{ items?: BlockscoutTokenTransferItem[] }>(
         `${baseUrl}/addresses/${address}/token-transfers`
+      ),
+      safeFetchBlockscout<{ items?: BlockscoutInternalTxItem[] }>(
+        `${baseUrl}/addresses/${address}/internal-transactions`
       ),
     ]);
 
@@ -208,8 +242,11 @@ export async function fetchLiveOnChainTransactions(
     const tokItems: BlockscoutTokenTransferItem[] = Array.isArray(tokRes?.items)
       ? tokRes!.items!
       : [];
+    const internalItems: BlockscoutInternalTxItem[] = Array.isArray(internalTxRes?.items)
+      ? internalTxRes!.items!
+      : [];
 
-    if (combinedTxs.length === 0 && tokItems.length === 0) {
+    if (combinedTxs.length === 0 && tokItems.length === 0 && internalItems.length === 0) {
       return { realNodes: [], realLinks: [], isLive: false };
     }
 
@@ -439,6 +476,68 @@ export async function fetchLiveOnChainTransactions(
         isHighTaint:
           counterpartyNode.entityType === 'exploiter' || counterpartyNode.entityType === 'mixer',
         velocity: 1.2,
+        status: 'Confirmed',
+        inputDataHex: '0x',
+        dataSource: 'live_onchain',
+      });
+    }
+
+    // 3. Process internal transactions (critical for EIP-7702 sweeps & smart contract internal ETH drains)
+    let internalCount = 0;
+    for (const it of internalItems) {
+      if (it.success === false) continue;
+      if (!it.value || it.value === '0') continue;
+
+      const fromAddr = it.from?.hash;
+      const toAddr = it.to?.hash;
+      if (!fromAddr || !toAddr) continue;
+
+      const isOutflow = fromAddr.toLowerCase() === normalizedCenter;
+      const counterpartyAddr = isOutflow ? toAddr : fromAddr;
+      if (!counterpartyAddr || counterpartyAddr.toLowerCase() === normalizedCenter) continue;
+
+      const rawWei = BigInt(it.value);
+      const ethAmount = Number(rawWei / BigInt(1e14)) / 10000;
+      const usdValue = Math.round(ethAmount * ethPriceUsd);
+      if (usdValue < 50) continue;
+
+      const txTimestamp = it.timestamp ? new Date(it.timestamp).getTime() : now;
+      const counterpartyNode = upsertCounterparty(
+        counterpartyAddr,
+        isOutflow,
+        usdValue,
+        'ETH',
+        ethAmount,
+        txTimestamp,
+        Boolean(isOutflow ? it.to?.is_contract : it.from?.is_contract),
+        isOutflow ? it.to?.name : it.from?.name
+      );
+
+      const txHash = it.transaction_hash || `0x${counterpartyAddr.slice(2).padEnd(64, '1')}`;
+      const linkId = `live-internal-${txHash.slice(0, 14)}-${internalCount++}`;
+      if (seenLinkIds.has(linkId)) continue;
+      seenLinkIds.add(linkId);
+
+      realLinks.push({
+        id: linkId,
+        txHash,
+        source: isOutflow ? address : counterpartyNode.id,
+        target: isOutflow ? counterpartyNode.id : address,
+        sourceChain: chain,
+        targetChain: chain,
+        amount: +ethAmount.toFixed(4),
+        usdValue,
+        asset: 'ETH',
+        timestamp: txTimestamp,
+        blockNumber: it.block_number || 26300770,
+        gasUsed: 120000,
+        gasPriceGwei: 24,
+        feeUsd: 4.5,
+        methodName: 'Internal Call / EIP-7702 ETH Sweep',
+        isCrossChain: false,
+        isProbabilistic: false,
+        isHighTaint: true,
+        velocity: 1.5,
         status: 'Confirmed',
         inputDataHex: '0x',
         dataSource: 'live_onchain',

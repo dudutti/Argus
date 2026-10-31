@@ -18,6 +18,56 @@ export interface LocalizedCaseMeta {
 
 export const LOCALIZED_CASES: Record<Language, Record<string, LocalizedCaseMeta>> = {
   fr: {
+    'binance-2026': {
+      title: 'Binance Multi-Chaînes ($6.4B — 29 Oct. 2026)',
+      subtitle: 'Le plus grand braquage de l\'histoire crypto : Détournement EIP-7702 & Blitzkrieg sur 8 Blockchains',
+      category: 'Infrastructure & EIP-7702 EOA Hijack // Multichain Blitz',
+      stolenAmountUsd: '$6,400,000,000',
+      attackerAttribution: 'Lazarus Group / TraderTraitor / UNC4899',
+      rootVulnerability: 'Compromission des clés de serveur d\'orchestration + 50 autorisations de délégation EIP-7702 (0xef0100)',
+      summary:
+        'Le 29 octobre 2026 à 20:20 UTC, le groupe Lazarus a frappé Binance en exploitant l\'EIP-7702. Sans modifier l\'adresse du hot wallet Binance 14, un bytecode de sweeper a été injecté, siphonnant plus de 6,4 Milliards de dollars sur 8 blockchains (Ethereum, Bitcoin, Tron, Arbitrum, Optimism, Base, BNB Chain, Solana). En 54 minutes, Tether, Circle et l\'Arbitrum Security Council ont réussi à geler ~2,9 Milliards de dollars, tandis que ~3,5 Milliards en ETH et BTC natifs continuent de fuir via des peel chains actives.',
+      methodologySteps: [
+        '1. Déploiement préalable du contrat sweeper malveillant sur Ethereum L1 au bloc #26295416.',
+        '2. Validation furtive de 50 signatures d\'autorisation EIP-7702 à nonces séquentiels dérobées sur l\'infrastructure interne.',
+        '3. Exécution d\'un sweep atomique : drainage de 167 464 ETH et de milliards en stablecoins vers le hub 0x5227f6...',
+        '4. Siphon simultané de 18 270,20 BTC au bloc 973732 vers le vault racine bc1q0mtc... et découpage en tranches UTXO de 1 000 BTC.',
+        '5. Réaction d\'urgence : gel de 1,615 Md$ USDT par Tether, $800M par Circle et $30,5M par le Security Council Arbitrum.',
+        '6. Blanchiment actif en direct : dispersion de 17 260 ETH vers 0x03b0eE... et négociation on-chain bilingue.',
+      ],
+      chronologySteps: [
+        {
+          title: 'Déploiement du Contrat Sweeper Malveillant',
+          phase: 'Préparation d\'Arme',
+          description: 'L\'attaquant déploie le smart contract sweeper à 02:28:59 UTC sur Ethereum L1.',
+        },
+        {
+          title: 'Détournement EIP-7702 de Binance 14',
+          phase: 'Compromission EOA',
+          description: 'Injection de l\'authorization_list forçant le hot wallet Binance 14 à exécuter le code 0xef0100.',
+        },
+        {
+          title: 'Mega-Sweep Atomique ($2.5B+ EVM)',
+          phase: 'Exfiltration Primaire',
+          description: 'Transfert interne de 167 464 ETH et 1,615 Md$ USDT vers 0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c.',
+        },
+        {
+          title: 'Siphon Massif Bitcoin (18 270 BTC)',
+          phase: 'Exfiltration UTXO',
+          description: 'Drainage au bloc 973732 vers bc1q0mtc... et début de la dispersion immédiate en peel chains.',
+        },
+        {
+          title: 'Gels Coordonnés Tether / Circle / Arbitrum',
+          phase: 'Contre-Attaque Forensique',
+          description: 'Gel record en 54 minutes de près de 2,9 Milliards de dollars en USDT, USDC et tokens L2.',
+        },
+        {
+          title: 'Blanchiment Live & Peel Chains Actives',
+          phase: 'Dispersion Temps Réel',
+          description: 'Transfert de 17 260 ETH vers 0x03b0eE... le 30-31 octobre et messages on-chain en cours.',
+        },
+      ],
+    },
     'bybit-2025': {
       title: 'Bybit Safe Cold Vault ($1.46B ETH/stETH)',
       subtitle: 'Compromission multi-signature Safe par injecteur malveillant de transactions',
@@ -245,6 +295,56 @@ export const LOCALIZED_CASES: Record<Language, Record<string, LocalizedCaseMeta>
   },
 
   en: {
+    'binance-2026': {
+      title: 'Binance Multi-Chain Heist ($6.4B — Oct 2026)',
+      subtitle: 'The largest crypto heist in history: EIP-7702 EOA Hijack & 8-Blockchain Blitzkrieg',
+      category: 'Infrastructure & EIP-7702 EOA Hijack // Multichain Blitz',
+      stolenAmountUsd: '$6,400,000,000',
+      attackerAttribution: 'Lazarus Group / TraderTraitor / UNC4899',
+      rootVulnerability: 'Orchestration server key compromise + 50 pre-signed EIP-7702 delegation authorizations (0xef0100)',
+      summary:
+        'On October 29, 2026 at 20:20 UTC, Lazarus Group struck Binance by weaponizing EIP-7702. Without modifying the Binance 14 EOA address, malicious sweeper bytecode was injected, siphoning over $6.4 Billion across 8 blockchains (Ethereum, Bitcoin, Tron, Arbitrum, Optimism, Base, BNB Chain, Solana). In 54 minutes, Tether, Circle, and the Arbitrum Security Council frozen ~$2.9 Billion, while ~$3.5 Billion in native ETH and BTC continues active live laundering across peel chains.',
+      methodologySteps: [
+        '1. Pre-deployment of malicious sweeper smart contract on Ethereum L1 at block #26295416.',
+        '2. Covert harvesting of 50 pre-signed EIP-7702 sequential nonce authorizations from internal orchestration servers.',
+        '3. Atomic sweep execution: draining 167,464 ETH and billions in stablecoins to hub 0x5227f6...',
+        '4. Simultaneous siphon of 18,270.20 BTC at block 973732 to root vault bc1q0mtc... and immediate 1,000 BTC UTXO slicing.',
+        '5. Rapid counter-attack: $1.615B USDT frozen by Tether, $800M by Circle, and $30.5M by Arbitrum Security Council.',
+        '6. Ongoing live laundering: 17,260 ETH peel transfer to 0x03b0eE... and bilingual on-chain negotiations.',
+      ],
+      chronologySteps: [
+        {
+          title: 'Malicious Sweeper Deployment',
+          phase: 'Weapon Staging',
+          description: 'Attacker deploys sweeper contract at 02:28:59 UTC on Ethereum L1.',
+        },
+        {
+          title: 'EIP-7702 Binance 14 Hijack',
+          phase: 'EOA Code Delegation',
+          description: 'Injecting authorization_list forcing Binance 14 EOA to execute delegated 0xef0100 bytecode.',
+        },
+        {
+          title: 'Atomic Mega-Sweep ($2.5B+ EVM)',
+          phase: 'Primary Exfiltration',
+          description: 'Internal transfer of 167,464 ETH and 1.615B USDT to 0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c.',
+        },
+        {
+          title: 'Bitcoin Blitz Drain (18,270 BTC)',
+          phase: 'UTXO Exfiltration',
+          description: 'Draining at block 973732 to bc1q0mtc... and immediate dispersion into 1,000 BTC peel chains.',
+        },
+        {
+          title: 'Coordinated Tether / Circle / Arbitrum Freeze',
+          phase: 'Forensic Counter-Attack',
+          description: 'Record 54-minute freeze of nearly $2.9 Billion across USDT, USDC, and L2 tokens.',
+        },
+        {
+          title: 'Live Laundering & Active Peel Chains',
+          phase: 'Real-Time Dispersion',
+          description: 'Transfer of 17,260 ETH to 0x03b0eE... on Oct 30-31 and ongoing negotiation messages.',
+        },
+      ],
+    },
     'bybit-2025': {
       title: 'Bybit Safe Cold Vault ($1.46B ETH/stETH)',
       subtitle: 'Safe multisig compromise via malicious transaction injector module',
@@ -473,6 +573,7 @@ export const LOCALIZED_CASES: Record<Language, Record<string, LocalizedCaseMeta>
 };
 
 const CASE_ID_ALIASES: Record<string, string> = {
+  'binance-multichain-heist-2026': 'binance-2026',
   'bybit-safe-exploit-2025': 'bybit-2025',
   'ronin-bridge-exploit-2022': 'ronin-2022',
   'euler-flashloan-exploit-2023': 'euler-2023',

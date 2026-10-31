@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForensicStore, getFilteredGraph } from '../store/useForensicStore';
 import { CHAIN_PLANES } from '../data/forensicCases';
-import { ExplorerTab } from '../types/forensics';
+import { ExplorerTab, isNodeFrozenAtTime } from '../types/forensics';
 import { TRANSLATIONS } from '../i18n/translations';
 import {
   Activity,
@@ -624,6 +624,29 @@ export const ClassicBlockExplorer: React.FC = () => {
                     <span className="px-2 py-0.5 text-xs uppercase rounded bg-white/10 text-slate-200">
                       ENTITY: {selectedWallet.entityType}
                     </span>
+                    {(() => {
+                      const isFrozenNow = isNodeFrozenAtTime(selectedWallet, state.currentTimestamp, state.links);
+                      if (isFrozenNow) {
+                        return (
+                          <span className="px-2 py-0.5 text-xs font-bold rounded bg-sky-500/25 text-sky-300 border border-sky-500/40">
+                            ❄️ FROZEN ({selectedWallet.freezeReason || 'Blacklisted'})
+                          </span>
+                        );
+                      }
+                      if (selectedWallet.isFrozen) {
+                        return (
+                          <span className="px-2 py-0.5 text-xs font-bold rounded bg-rose-500/25 text-rose-300 border border-rose-500/40 animate-pulse">
+                            🚨 ACTIVE HOT VAULT (PRE-FREEZE)
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
+                    {selectedWallet.eip7702DelegatedTo && (
+                      <span className="px-2 py-0.5 text-xs font-bold rounded bg-amber-500/25 text-amber-300 border border-amber-500/40">
+                        ⚠️ EIP-7702 HIJACK ({selectedWallet.eip7702DelegatedTo.slice(0, 8)}...)
+                      </span>
+                    )}
                     <span
                       className={`px-2 py-0.5 text-xs font-bold rounded ${
                         selectedWallet.taintScore >= 70

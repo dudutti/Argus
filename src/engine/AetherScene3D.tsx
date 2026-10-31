@@ -6,7 +6,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { useForensicStore, getFilteredGraph } from '../store/useForensicStore';
 import { CHAIN_PLANES } from '../data/forensicCases';
-import { AssetType, ChainId, ForensicLink, ForensicNode } from '../types/forensics';
+import { AssetType, ChainId, ForensicLink, ForensicNode, isNodeFrozenAtTime } from '../types/forensics';
 import { ArgusOrbitalLogo } from '../components/ArgusOrbitalLogo';
 import { TRANSLATIONS } from '../i18n/translations';
 import { Compass, Eye, Flame, Layers, Maximize2, PlusCircle, RotateCcw, Search, Sparkles } from 'lucide-react';
@@ -23,7 +23,8 @@ function getTaintHeatmapColor(taintScore: number): THREE.Color {
   return new THREE.Color(0xd4a359).lerp(new THREE.Color(0xe04f33), (t - 0.7) / 0.3);
 }
 
-function getEntityDefaultColor(node: ForensicNode): THREE.Color {
+function getEntityDefaultColor(node: ForensicNode, isFrozenNow = false): THREE.Color {
+  if (isFrozenNow) return new THREE.Color(0x38bdf8); // Cryo-Cyan / Frosted Ice
   if (node.flaggedSuspect || node.entityType === 'exploiter') return new THREE.Color(0xe04f33); // Signal Vermilion
   switch (node.entityType) {
     case 'mixer':
@@ -36,11 +37,12 @@ function getEntityDefaultColor(node: ForensicNode): THREE.Color {
       return new THREE.Color(0xd4a359); // Brushed Brass / Gold Cube
     case 'eoa':
     default:
-      return new THREE.Color(CHAIN_PLANES[node.chain].hex);
+      return new THREE.Color(CHAIN_PLANES[node.chain]?.hex || 0x8c9bae);
   }
 }
 
 function getAssetLinkColor(link: ForensicLink, heatmapMode: boolean): THREE.Color {
+  if (link.isFrozen) return new THREE.Color(0x38bdf8); // Cryo-Cyan for frozen transactions
   if (heatmapMode) {
     return link.isHighTaint ? new THREE.Color(0xe04f33) : new THREE.Color(0x5e768c);
   }
@@ -51,7 +53,15 @@ function getAssetLinkColor(link: ForensicLink, heatmapMode: boolean): THREE.Colo
     USDC: 0x5da882, // Sage = USDC
     DAI: 0xb89658,
     WBTC: 0xd4a359, // Warm Amber Brass = WBTC
+    BTC: 0xd4a359,
     SOL: 0x4e9f76,
+    TRX: 0xd9534f, // Ruby Terracotta
+    BNB: 0xe5b84b, // Imperial Ochre
+    ARB: 0x7c93a8,
+    OP: 0xe05263,  // Crimson Rose
+    RLUSD: 0x4e9f76,
+    WBETH: 0x96aab8,
+    XAUT: 0xf59e0b, // Gold
   };
   return new THREE.Color(map[link.asset] || 0x8c9bae);
 }
@@ -120,6 +130,7 @@ interface NodeRenderEntry {
   verticalBeam?: THREE.Mesh;
   labelSprite?: THREE.Sprite;
   baseRadius: number;
+  isFrozenNow: boolean;
 }
 
 interface LinkRenderEntry {
@@ -137,6 +148,7 @@ export const AetherScene3D: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const state = useForensicStore();
   const t = TRANSLATIONS[state.language];
+  const { visibleNodes, visibleLinks } = getFilteredGraph(state);
 
   const [hoveredNode, setHoveredNode] = useState<{
     node: ForensicNode;
@@ -425,12 +437,18 @@ export const AetherScene3D: React.FC = () => {
 
       // Animate Specialized Node Geometries & Constrain Y-Plane Gravity
       nodeEntriesRef.current.forEach((entry) => {
-        const { node, group, primaryMesh, secondaryRing, verticalBeam, baseRadius } = entry;
+        const { node, group, primaryMesh, secondaryRing, verticalBeam, baseRadius, isFrozenNow } = entry;
         const targetY = CHAIN_PLANES[node.chain].y;
         // Subtle Y-plane harmonic hover around chain stratum
         group.position.y += (targetY - group.position.y) * 0.12;
 
-        if (node.entityType === 'exploiter' || node.flaggedSuspect) {
+        if (isFrozenNow) {
+          // Slow crystallized frost drift for frozen/seized vault
+          primaryMesh.rotation.y += 0.005;
+          if (secondaryRing) {
+            secondaryRing.rotation.y -= 0.004;
+          }
+        } else if (node.entityType === 'exploiter' || node.flaggedSuspect) {
           // Pulsating crimson icosahedron with rotating warning wireframe ring
           const pulse = 1 + Math.sin(elapsedSec * 4.5) * 0.16;
           primaryMesh.scale.setScalar(pulse);
@@ -540,17 +558,22 @@ export const AetherScene3D: React.FC = () => {
     };
   }, []);
 
-  // 2. Toggle Chain Planes Visibility
+  // 2. Toggle Chain Planes Visibility with Smart Stratum Visibility
   useEffect(() => {
     if (!planesGroupRef.current) return;
     planesGroupRef.current.visible = state.showChainPlanes;
+    const activeChainsInGraph = new Set(visibleNodes.map((n) => n.chain));
     planesGroupRef.current.children.forEach((child) => {
       const chain = child.userData?.chain as ChainId | undefined;
       if (chain) {
-        child.visible = state.enabledChains[chain];
+        // Smart Stratum: if only 1 chain is active in the graph (e.g. single-chain case), only show that plane to avoid visual clutter
+        const shouldShow = activeChainsInGraph.size <= 1
+          ? activeChainsInGraph.has(chain)
+          : state.enabledChains[chain];
+        child.visible = state.enabledChains[chain] && shouldShow;
       }
     });
-  }, [state.showChainPlanes, state.enabledChains]);
+  }, [state.showChainPlanes, state.enabledChains, visibleNodes]);
 
   // 3. Rebuild / Sync 3D Nodes, Specialized Geometries, Curves, and Flow Particles when Filtered Graph Changes
   useEffect(() => {
@@ -629,9 +652,11 @@ export const AetherScene3D: React.FC = () => {
       const group = new THREE.Group();
       group.position.set(node.x, CHAIN_PLANES[node.chain].y, node.z);
 
+      const isFrozenNow = isNodeFrozenAtTime(node, state.currentTimestamp, state.links);
+
       const nodeColor = state.heatmapTaintMode
         ? getTaintHeatmapColor(node.taintScore)
-        : getEntityDefaultColor(node);
+        : getEntityDefaultColor(node, isFrozenNow);
 
       // Logarithmic scale by USD volume
       const logScale = Math.max(3.6, Math.min(13.5, Math.log10(Math.max(1000, node.volumeUsd)) * 1.45 - 3.2));
@@ -639,7 +664,29 @@ export const AetherScene3D: React.FC = () => {
       let secondaryRing: THREE.Object3D | undefined;
       let verticalBeam: THREE.Mesh | undefined;
 
-      if (node.entityType === 'exploiter' || node.flaggedSuspect) {
+      if (isFrozenNow) {
+        // Frosted Cryo-Cyan Octahedron with wireframe ice cage for frozen/seized funds
+        const geo = new THREE.OctahedronGeometry(logScale * 1.35, 1);
+        const mat = new THREE.MeshStandardMaterial({
+          color: 0x38bdf8,
+          emissive: 0x0284c7,
+          emissiveIntensity: 0.85,
+          roughness: 0.1,
+          metalness: 0.9,
+          wireframe: false,
+        });
+        primaryMesh = new THREE.Mesh(geo, mat);
+
+        const cageGeo = new THREE.BoxGeometry(logScale * 2.4, logScale * 2.4, logScale * 2.4);
+        const cageMat = new THREE.MeshBasicMaterial({
+          color: 0x38bdf8,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.75,
+        });
+        secondaryRing = new THREE.Mesh(cageGeo, cageMat);
+        group.add(secondaryRing);
+      } else if (node.entityType === 'exploiter' || node.flaggedSuspect) {
         // 1. Hacker / Sanctioned Entity: Pulsating crimson icosahedron with warning wireframe ring
         const geo = new THREE.IcosahedronGeometry(logScale * 1.25, 0);
         const mat = new THREE.MeshStandardMaterial({
@@ -753,6 +800,19 @@ export const AetherScene3D: React.FC = () => {
       primaryMesh.userData = { nodeId: node.id };
       group.add(primaryMesh);
 
+      if (node.eip7702DelegatedTo) {
+        const trojanGeo = new THREE.TorusGeometry(logScale * 2.1, 0.45, 8, 28);
+        const trojanMat = new THREE.MeshBasicMaterial({
+          color: 0xf59e0b,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.9,
+        });
+        const trojanRing = new THREE.Mesh(trojanGeo, trojanMat);
+        trojanRing.rotation.x = Math.PI / 2;
+        group.add(trojanRing);
+      }
+
       // Add floating 3D label sprite for non-EOA infrastructure or high-volume/selected nodes
       const shouldRenderLabel =
         state.showLabels &&
@@ -762,16 +822,21 @@ export const AetherScene3D: React.FC = () => {
 
       if (shouldRenderLabel) {
         const badgeColor =
-          node.taintScore >= 75
+          isFrozenNow
+            ? '#38BDF8'
+            : node.taintScore >= 75
             ? '#E04F33'
             : node.entityType === 'cex'
             ? '#D4A359'
             : node.entityType === 'mixer'
             ? '#9D7CD8'
             : '#8C9BAE';
+        const subtext = isFrozenNow
+          ? `[FROZEN // $${(node.volumeUsd / 1e6).toFixed(1)}M]`
+          : `$${(node.volumeUsd / 1e6).toFixed(2)}M | TAINT: ${node.taintScore}%`;
         const sprite = createTextSprite(
           node.label,
-          `$${(node.volumeUsd / 1e6).toFixed(2)}M | TAINT: ${node.taintScore}%`,
+          subtext,
           badgeColor,
           44
         );
@@ -787,6 +852,7 @@ export const AetherScene3D: React.FC = () => {
         secondaryRing,
         verticalBeam,
         baseRadius: logScale,
+        isFrozenNow,
       });
     });
 
@@ -881,6 +947,9 @@ export const AetherScene3D: React.FC = () => {
         offsets.push(i / pCount + Math.random() * 0.12);
       }
 
+      const isDstFrozenNow = isNodeFrozenAtTime(dstEntry.node, state.currentTimestamp, state.links);
+      const isLinkFrozenNow = Boolean(link.isFrozen && link.timestamp <= state.currentTimestamp);
+
       linkEntriesRef.current.push({
         link,
         curve,
@@ -888,7 +957,7 @@ export const AetherScene3D: React.FC = () => {
         color: linkColor,
         particleCount: pCount,
         particleOffsets: offsets,
-        particleSpeed: link.velocity,
+        particleSpeed: isLinkFrozenNow || isDstFrozenNow ? 0 : link.velocity,
         particleSize: Math.min(10, Math.max(4, Math.log10(Math.max(1000, link.usdValue)))),
       });
 
@@ -1099,6 +1168,26 @@ export const AetherScene3D: React.FC = () => {
           <div className="text-[11px] font-mono text-slate-400 mb-2">
             {hoveredNode.node.address.slice(0, 14)}...{hoveredNode.node.address.slice(-8)}
           </div>
+          {(() => {
+            const isHoverFrozen = isNodeFrozenAtTime(hoveredNode.node, state.currentTimestamp, state.links);
+            if (isHoverFrozen) {
+              return (
+                <div className="mb-2 px-2 py-0.5 rounded bg-sky-500/20 border border-sky-500/40 text-[9px] font-mono text-sky-300 font-bold flex items-center gap-1.5 uppercase tracking-wide">
+                  <span>❄️</span>
+                  <span>{state.language === 'fr' ? 'Fonds Gelés On-Chain' : 'Frozen On-Chain Assets'}</span>
+                </div>
+              );
+            }
+            if (hoveredNode.node.isFrozen) {
+              return (
+                <div className="mb-2 px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/40 text-[9px] font-mono text-rose-300 font-bold flex items-center gap-1.5 uppercase tracking-wide">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                  <span>{state.language === 'fr' ? 'Hot Vault (Actif // Pré-Gel)' : 'Hot Vault (Active // Pre-Freeze)'}</span>
+                </div>
+              );
+            }
+            return null;
+          })()}
           {hoveredNode.node.dataSource === 'live_onchain' || hoveredNode.node.notes?.includes('[Live On-Chain') ? (
             <div className="mb-2 px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-[9px] font-mono text-emerald-300 font-bold flex items-center gap-1.5 uppercase tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

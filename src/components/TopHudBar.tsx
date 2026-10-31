@@ -37,6 +37,9 @@ export const TopHudBar: React.FC = () => {
   const taintedVolume = visibleLinks
     .filter((l) => l.isHighTaint)
     .reduce((acc, l) => acc + l.usdValue, 0);
+  const frozenVolume = visibleLinks
+    .filter((l) => l.isFrozen)
+    .reduce((acc, l) => acc + l.usdValue, 0);
   const taintedPercent =
     totalVolumeTracked > 0 ? Math.round((taintedVolume / totalVolumeTracked) * 100) : 0;
 
@@ -173,18 +176,36 @@ export const TopHudBar: React.FC = () => {
               value={state.searchQuery}
               onChange={(e) => state.setSearchQuery(e.target.value)}
               placeholder={t.nav.searchPlaceholder}
-              className="w-full pl-9 pr-44 py-1.5 text-xs font-mono bg-[#09090B]/90 text-zinc-100 placeholder-zinc-500 border border-white/10 rounded-lg focus:outline-none focus:border-[#D4A359]/60 focus:ring-1 focus:ring-[#D4A359]/30 transition"
+              className="w-full pl-9 pr-56 py-1.5 text-xs font-mono bg-[#09090B]/90 text-zinc-100 placeholder-zinc-500 border border-white/10 rounded-lg focus:outline-none focus:border-[#D4A359]/60 focus:ring-1 focus:ring-[#D4A359]/30 transition"
             />
             {state.searchQuery && (
               <button
                 type="button"
                 onClick={() => state.setSearchQuery('')}
-                className="absolute right-40 text-zinc-500 hover:text-zinc-300"
+                className="absolute right-52 text-zinc-500 hover:text-zinc-300"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
             <div className="absolute right-1.5 flex items-center gap-1">
+              {/* Chain Target Selector */}
+              <select
+                value={state.targetChainSelector}
+                onChange={(e) => state.setTargetChainSelector(e.target.value as any)}
+                className="text-[10px] font-mono bg-[#18181B] text-zinc-300 border border-white/10 rounded px-1.5 py-1 focus:outline-none cursor-pointer"
+                title="Target blockchain for live lookup (or AUTO)"
+              >
+                <option value="AUTO">AUTO</option>
+                <option value="ETH">ETH</option>
+                <option value="BTC">BTC</option>
+                <option value="TRX">TRX</option>
+                <option value="ARB">ARB</option>
+                <option value="OP">OP</option>
+                <option value="BASE">BASE</option>
+                <option value="BSC">BSC</option>
+                <option value="SOL">SOL</option>
+              </select>
+
               <button
                 type="submit"
                 disabled={state.isSearchingLive}
@@ -213,6 +234,24 @@ export const TopHudBar: React.FC = () => {
             </div>
           </div>
         </form>
+
+        {/* Live Laundering Sync Button for Binance 2026 */}
+        {state.activeCaseId === 'binance-multichain-heist-2026' && (
+          <button
+            type="button"
+            disabled={state.isRefreshingLive}
+            onClick={() => state.refreshLiveCaseActivity()}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono font-bold bg-[#E04F33]/20 hover:bg-[#E04F33]/30 text-[#E04F33] border border-[#E04F33]/40 rounded-lg shadow-[0_0_12px_rgba(224,79,51,0.2)] transition shrink-0 cursor-pointer"
+            title="Interroger en direct les adresses Lazarus et synchroniser les nouvelles transactions du 31 octobre 2026"
+          >
+            {state.isRefreshingLive ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Activity className="w-3.5 h-3.5" />
+            )}
+            <span className="hidden sm:inline">Sync Live (31 Oct)</span>
+          </button>
+        )}
 
         {/* Chain Stratum Layer Toggles (ETH, ARB, BTC, SOL) + Workspace Mode Switcher + Language Selector */}
         <div className="flex items-center gap-2.5">
@@ -364,6 +403,15 @@ export const TopHudBar: React.FC = () => {
             <span className="text-[#E04F33] font-bold">{taintedPercent}%</span>
             <span className="text-zinc-500">(${(taintedVolume / 1e6).toFixed(1)}M)</span>
           </div>
+
+          {/* KPI 2b: Frozen vs Active Funds (Cryo-Cyan Badge) */}
+          {frozenVolume > 0 && (
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-[#0284C7]/20 border border-[#38BDF8]/40 shadow-[0_0_10px_rgba(56,189,248,0.2)]">
+              <span className="text-[#38BDF8] font-bold">❄️ GELÉ : ${(frozenVolume / 1e6).toFixed(1)}M</span>
+              <span className="text-zinc-500">|</span>
+              <span className="text-[#E04F33] font-bold">⚡ EN FUITE : ${((totalVolumeTracked - frozenVolume) / 1e6).toFixed(1)}M</span>
+            </div>
+          )}
 
           {/* KPI 3: Active Mixers Detected */}
           <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-[#09090B]/70 border border-white/10">

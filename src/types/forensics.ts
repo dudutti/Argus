@@ -1,4 +1,4 @@
-export type ChainId = 'ETH' | 'ARB' | 'BTC' | 'SOL';
+export type ChainId = 'SOL' | 'BASE' | 'OP' | 'ARB' | 'ETH' | 'BSC' | 'TRX' | 'BTC';
 
 export type EntityType =
   | 'eoa'
@@ -8,7 +8,21 @@ export type EntityType =
   | 'dex'
   | 'cex';
 
-export type AssetType = 'ETH' | 'USDT' | 'USDC' | 'WBTC' | 'SOL' | 'DAI';
+export type AssetType =
+  | 'ETH'
+  | 'USDT'
+  | 'USDC'
+  | 'WBTC'
+  | 'BTC'
+  | 'SOL'
+  | 'DAI'
+  | 'TRX'
+  | 'BNB'
+  | 'ARB'
+  | 'OP'
+  | 'RLUSD'
+  | 'WBETH'
+  | 'XAUT';
 
 export interface TokenHolding {
   symbol: AssetType;
@@ -31,6 +45,10 @@ export interface ForensicNode {
   firstSeen: number; // unix timestamp ms
   lastActive: number;
   flaggedSuspect?: boolean;
+  isFrozen?: boolean;
+  freezeReason?: string;
+  frozenTimestamp?: number; // unix timestamp ms when freeze event/blacklist was executed
+  eip7702DelegatedTo?: string;
   notes?: string;
   tokens: TokenHolding[];
   txCount: number;
@@ -63,6 +81,7 @@ export interface ForensicLink {
   isCrossChain: boolean;
   isProbabilistic?: boolean; // Post-mixer time/amount correlation link
   isHighTaint?: boolean;
+  isFrozen?: boolean;
   velocity: number; // 0.3 to 3.0 speed factor for particle movement
   status: 'Confirmed' | 'Pending' | 'Flagged';
   inputDataHex?: string;
@@ -115,4 +134,30 @@ export interface CaseStudy {
 export type AppViewMode = '3d' | 'explorer' | 'split';
 
 export type ExplorerTab = 'transactions' | 'blocks' | 'wallets' | 'tx-detail' | 'wallet-detail' | 'block-detail';
+
+/**
+ * Returns true if a node is currently frozen at the given timeline timestamp.
+ * If the timeline is scrubbed before the freeze event, the node is rendered as an active/suspect vault (Red).
+ * When currentTimestamp passes the freeze transaction, the node morphs into Cryo-Cyan with its ice cage.
+ */
+export function isNodeFrozenAtTime(
+  node: ForensicNode,
+  currentTimestamp: number,
+  allLinks?: ForensicLink[]
+): boolean {
+  if (!node.isFrozen) return false;
+  if (typeof node.frozenTimestamp === 'number') {
+    return currentTimestamp >= node.frozenTimestamp;
+  }
+  if (allLinks && allLinks.length > 0) {
+    const freezeLink = allLinks.find(
+      (l) => l.isFrozen && (l.target === node.id || l.source === node.id)
+    );
+    if (freezeLink) {
+      return currentTimestamp >= freezeLink.timestamp;
+    }
+  }
+  return true;
+}
+
 
